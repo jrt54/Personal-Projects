@@ -1,8 +1,5 @@
 
-
-
 //Jeremy Tillay
-//make sure miller rabin can test for -1 or n-1 mod n
 //Final Project
 //RSA Decryption Scheme + other neat tools
 //April 2015
@@ -473,4 +470,3 @@ int main()
 	
 }
 
-Displaying finalproj.cpp.
