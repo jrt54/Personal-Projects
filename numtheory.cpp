@@ -9,16 +9,18 @@
 #include <vector>
 #include<string>
 #include<iomanip>
+//#include<sstream>
+#include<cstdlib>
 #include<map>
-
+#include <limits>
 
 using namespace std;
 
 
 
+//this function returns the value inverseMod such that s*inverseMod % mod = 1 % mod
 unsigned long inverseMod(unsigned long s, unsigned long mod)
 {
-	//this function returns the value inverseMod such that s*inverseMod % mod = 1 % mod
 	unsigned long i = 0;
 	while (s*i%mod != 1 && i<mod)
 		++i;
@@ -38,8 +40,8 @@ unsigned long inverseMod(unsigned long s, unsigned long mod)
 unsigned long modExp(unsigned long b, unsigned long e, unsigned long m)
 {
 	//this finds b^e mod m 
-	//sinds b and e might be huge, regulation exponentiation won't work
-	//we square b repeatedly or multiply by b repeatedly and doing the %m operation every time
+	//since b and e might be huge, regular exponentiation won't work
+	//we square b repeatedly or multiply by b repeatedly and do the modulo operation i.e. %m every time
 	unsigned long remainder;
 	unsigned long x = 1;
 
@@ -72,12 +74,13 @@ void menu()
 	cout << "* 4.) Carmichael Number Tester                    *" << endl;
 	cout << "* 5.) Miller-Rabin Primality Test                 *" << endl;
 	cout << "***************************************************" << endl;
+	cout << "User Input: ";
+
 }
 
-
+//this is a math function that encrypts data using RSA encryption
 vector<unsigned long> RSAEncrypt(string input, unsigned long key1, unsigned long key2, unsigned long power)
 {
-	//this is a math function that encrypts data
 	vector<unsigned long> asciistring, encryptedstring;
 
 	for (int i = 0; i < input.size(); i++)
@@ -98,27 +101,30 @@ vector<unsigned long> RSAEncrypt(string input, unsigned long key1, unsigned long
 	return encryptedstring;
 }
 
+//this function decrypts our message of unsigned longs into a vector of characters, which is essentially a string
 vector<char> RSADecrypt(vector<unsigned long> encryptedmessage, unsigned long key1, unsigned long key2, unsigned long power)
 {
-	//this function decrypts our message of unsigned longs into a vector of characters, which is essentially a string
 	vector<char> decrypt;
 	for (int i = 0; i < encryptedmessage.size(); i++)
 	{
 		
 			decrypt.push_back(char(modExp(encryptedmessage[i], inverseMod(power, (key1 - 1)*(key2 - 1)), key1*key2)));
-			//first we perform a modular exponentation to undo the modular exponentation we did in the encryption
+			//first we perform an inverse modular exponentation to undo the modular exponentation we did in the encryption
 			//then we find the ascii value corresponding to the decrypted values and place them into a vector
 	}
 	return decrypt;
 }
 
+//This generates a map of factors of a given unsigned long n and a corresponding int giving the power of each unique factor in the unsigned long n
+//This can be used to generate the prime factorization of a number
+//That is, if n =1000=10*10*10=2*2*2*5*5*5, then this returns 2->3, 5->3.   
 map<long, int> PrimeFactors(long n)
 {
-	//this generates a map of factors of a given unsigned long n and a corresponding int giving the power of each unique factor in the unsigned long n
 	map<long, int> factors;
 
 		for (int i = 2; i <= n; i++)
 		{
+			//In this case, i is a factor of n, and we must find out the power of this factor. e.g.. 2 is a factor of 10 and 8, but 8 has a factor of 2 with power 3 and 10 has a factor of 2 with power 1. 
 			if (n%i == 0)
 			{
 				while (n%i == 0)
@@ -132,9 +138,9 @@ map<long, int> PrimeFactors(long n)
 }
 
 
+//brute force method for determining if something is prime
 bool isprime(unsigned long x)
 {
-	//brute force method for determining if something is prime
 	for (unsigned long i = 2; i < x; i++)
 	{
 		if (x%i == 0)
@@ -144,10 +150,10 @@ bool isprime(unsigned long x)
 	return true;
 }
 
+//probabilistic test to determine if a number is prime
+//This is called the Miller-Rabin test
 bool millerrabin(unsigned long input, unsigned long tester)
 {
-	//probabilistic test to determine if a number is prime
-	//This is called the Miller-Rabin test
 	int poweroftwo = 2;
 	int totalpower = 1;
 	while ((input - 1) % poweroftwo == 0)
@@ -184,10 +190,10 @@ bool millerrabin(unsigned long input, unsigned long tester)
 	return false;
 }
 
+//using our factoring function, we can determine if a number is carmichael
+//this relies on some math theory that says a number is carmichael if and only if it is square free and for each factor p, p-1%x-1 = 0
 bool iscarmichael(long x)
 {
-	//using our factoring function, we can determine if a number is carmichael
-	//this relies on some math theory that says a number is carmichael if and only if it is square free and for each factor p, p-1%x-1 = 0
 	map<long, int> factors = PrimeFactors(x);
 	for (map<long, int>::const_iterator it = factors.begin();it != factors.end(); ++it)
 	{
@@ -200,9 +206,9 @@ bool iscarmichael(long x)
 	return true; 
 }
 
+//this just returns a vector of factors, does not return the power of the factors in z
 vector<unsigned long> Factor(long z)
 {
-	//this just returns a vector of factors, does not return the power of the factors in z
 	vector<unsigned long> factors;
 	for (long i = 2; i <= z; i++)
 		if (z%i == 0 && i <= z)
@@ -218,9 +224,9 @@ vector<unsigned long> Factor(long z)
 }
 
 
+//uses the euclidean algorithm to find the greatest common denominator of a and b
 unsigned long gcd(unsigned long a, unsigned long b)
 {
-	//uses the euclidean algorithm to find the greatest common denominator of a and b
 	unsigned long c;
 	while (a != 0) {
 		c = a; a = b%a;  b = c;
@@ -228,7 +234,8 @@ unsigned long gcd(unsigned long a, unsigned long b)
 	return b;
 }
 
-
+//Processes user input, etc. 
+//Could be broken up into more readable functions
 int main()
 {
 
@@ -259,7 +266,7 @@ int main()
 
 			cout << "Now input two keys that are sufficiently large prime numbers" << endl;
 			cout << "If you need some examples, the following would work: 13, 17, 79, 229, 809 ,1777, 5717" << endl;
-
+			cout << "User input two keys seperated by space: ";
 			unsigned long key1, key2;
 			cin >> key1 >> key2;
 
@@ -327,7 +334,7 @@ int main()
 
 				cout << encryptedstring[i] << " ";
 			}
-			cout << endl << "This is your message encoded as numbers with the following public data";
+			cout << endl << "Above is your message encoded as numbers with the following public data";
 			cout << endl << "Modkey: " << key1 * key2 << endl;
 
 
@@ -347,20 +354,62 @@ int main()
 
 		case 2:
 			cout << "You have chosen to decrypt an encoded message. Be sure all your keys and powers are accurate." << endl;
-			cout << "What are the keys to your encrypter? If you only know the mod...";
-			cout << "Then you may need to use a factoring tool to find your keys...";
-			cin >> key1 >> key2;
-			cout << "What power was the message raised to?";
-			cin >> power;
-			cout << "Now enter the values corresponding to your encrypted message";
+			cout << "What are the keys to your encrypter? If you only know the mod, then you may need to use a factoring tool to find your keys..."<< endl;
+			
+			//cin >> key1 >> key2;
+			cout << "User Input key 1: ";
+			cin >> key1;
+			cin.ignore();
+			cout << "User Input key 2: ";
+			cin >>  key2;
+			cout << "What power was the message raised to (the public key exponent)? User Input Public Key Exponent: ";
+			cin >>  power;
+			cin.ignore();
+			cout << "Now enter the values corresponding to your encrypted message" << endl;
+			cout << "User-input message (press ctrl-D when done entering):";
 			{
+			//cin.clear();
+			//cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+			/*cin.ignore();
+			vector<unsigned long> encryptedkey;
+			vector<string> inputmessage;
+			string rawInput;
+			while(getline(cin, rawInput, ' '))
+			{
+			
+			//inputmessage.push_back(rawInput);
+			int num = atoi(rawInput.c_str() );
+			cout << num;
+			encryptedkey.push_back(num);
+			}*/
+			
+			//while (cin >> x && cin.get() != '\n')
 			vector<unsigned long> encryptedkey;
 			unsigned long x;
-
 			while (cin >> x)
 			{
-				encryptedkey.push_back(x);
+			encryptedkey.push_back(x);
 			}
+			//while(!(cin>>x))
+			//{
+			//cin.clear();
+			//cin.ignore(numeric_limits<streamsize>::max(),'\n');
+			//cout << "Please try again"; 
+	
+			//}
+			/*cin.clear();
+			char c;
+			string line;
+  			getline(cin, line);
+			istringstream iss(line);
+			string word; 
+			while( iss >> word){
+			cout << "test";
+			encryptedkey.push_back(c);
+			}*/
+			
+			cout << "Now decrypting (this may take a while)... "<<endl;
+
 			for (int i = 0; i < encryptedkey.size(); i++)
 			{
 			//call the decrypt function to get the vector of chars pre-encryption and the cout them all to piece together the string
